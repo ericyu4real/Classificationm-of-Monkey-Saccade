@@ -14,10 +14,16 @@ for cout in range(1, 710):
     # read the mat file
     mat = scipy.io.loadmat(input_path_away)
     myList = []
-    for i in range(10):
+    for i in range(460, 540):
+        smalist = []
         for j in range(10):
-            for k in range(460, 540):
-                myList.append(mat['temp'][i][j][k])
+            for k in range(10):
+                smalist.append(mat['temp'][j][k][i])
+        myList.append(smalist)
+    # for i in range(10):
+    #     for j in range(10):
+    #         for k in range(460, 540):
+    #             myList.append(mat['temp'][i][j][k])
     combine.append(myList)
 
 for cout in range(1, 1881):
@@ -25,10 +31,12 @@ for cout in range(1, 1881):
     # read the mat file
     mat = scipy.io.loadmat(input_path_away)
     myList = []
-    for i in range(10):
+    for i in range(460, 540):
+        smalist = []
         for j in range(10):
-            for k in range(460, 540):
-                myList.append(mat['temp'][i][j][k])
+            for k in range(10):
+                smalist.append(mat['temp'][j][k][i])
+        myList.append(smalist)
     combine.append(myList)
 
 combine = np.array(combine)
