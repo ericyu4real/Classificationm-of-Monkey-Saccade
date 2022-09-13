@@ -18,7 +18,7 @@ for cout in range(1, 710):
         smalist = []
         for j in range(10):
             for k in range(10):
-                smalist.append(mat['temp'][j][k][i])
+                smalist.append([mat['temp'][j][k][i]])
         myList.append(smalist)
     # for i in range(10):
     #     for j in range(10):
@@ -35,7 +35,7 @@ for cout in range(1, 1881):
         smalist = []
         for j in range(10):
             for k in range(10):
-                smalist.append(mat['temp'][j][k][i])
+                smalist.append([mat['temp'][j][k][i]])
         myList.append(smalist)
     combine.append(myList)
 
