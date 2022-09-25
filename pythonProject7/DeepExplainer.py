@@ -45,33 +45,52 @@ acc = accuracy_score( y_test, y_pred)
 print(acc)
 
 
+
 #Shap
 # Save an example of each class from the test set
 x_test_dict = dict()
+x_test_dict[0] = []
+x_test_dict[1] = []
 for i, l in enumerate(y_test):
-    if l[0] not in x_test_dict.keys():
-        x_test_dict[l[0]] = X_test[i]
-    else:
-        x_test_dict[l[0]] += X_test[i]
-
-for key in x_test_dict.keys():
-    x_test_dict[key] = x_test_dict[key]/648
-
-# Convert to list preserving order of classes
-x_test_each_class = [x_test_dict[i] for i in sorted(x_test_dict)]
-
-# Convert to tensor
-x_test_each_class = np.asarray(x_test_each_class)
-
-# Compute predictions
-predictions = np.rint(model.predict(x_test_each_class))
+    x_test_dict[l[0]].append(X_test[i])
 
 background = X_train[np.random.choice(X_train.shape[0], 1000, replace=False)]
 e = shap.DeepExplainer(model, background)
-shap_values = e.shap_values(x_test_each_class)
 
+print(len(x_test_dict[0]), len(x_test_dict[1]))
 
+shap_towards = np.zeros((1,1,80,100,1))
+for cout in range(len(x_test_dict[0])):
+    # Convert to list preserving order of classes
+    x_test_each_class = [x_test_dict[0][cout]]
+
+    # Convert to tensor
+    x_test_each_class = np.asarray(x_test_each_class)
+
+    # Compute predictions
+    # predictions = np.rint(model.predict(x_test_each_class))
+
+    shap_towards += np.array(e.shap_values(x_test_each_class))
+
+shap_away = np.zeros((1,1,80,100,1))
+for cout in range(len(x_test_dict[1])):
+    # Convert to list preserving order of classes
+    x_test_each_class = [x_test_dict[1][cout]]
+
+    # Convert to tensor
+    x_test_each_class = np.asarray(x_test_each_class)
+
+    # Compute predictions
+    # predictions = np.rint(model.predict(x_test_each_class))
+
+    shap_away += np.array(e.shap_values(x_test_each_class))
+
+shap_towards = shap_towards/474
+shap_away = shap_away/174
+shap_towards = shap_towards.tolist()
+shap_away = shap_away.tolist()
+
+shap_values = [[shap_towards[0][0], shap_away[0][0]]]
 # Plot shap values
+print(1)
 shap.image_plot(shap_values, -x_test_each_class)
-
-print(type(shap_values))
