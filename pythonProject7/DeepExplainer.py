@@ -49,10 +49,13 @@ print(acc)
 # Save an example of each class from the test set
 x_test_dict = dict()
 for i, l in enumerate(y_test):
-  if len(x_test_dict)==2:
-    break
-  if l[0] not in x_test_dict.keys():
-    x_test_dict[l[0]] = X_test[i]
+    if l[0] not in x_test_dict.keys():
+        x_test_dict[l[0]] = X_test[i]
+    else:
+        x_test_dict[l[0]] += X_test[i]
+
+for key in x_test_dict.keys():
+    x_test_dict[key] = x_test_dict[key]/648
 
 # Convert to list preserving order of classes
 x_test_each_class = [x_test_dict[i] for i in sorted(x_test_dict)]
@@ -63,7 +66,7 @@ x_test_each_class = np.asarray(x_test_each_class)
 # Compute predictions
 predictions = np.rint(model.predict(x_test_each_class))
 
-background = X_train[np.random.choice(X_train.shape[0], 1900, replace=False)]
+background = X_train[np.random.choice(X_train.shape[0], 1000, replace=False)]
 e = shap.DeepExplainer(model, background)
 shap_values = e.shap_values(x_test_each_class)
 
