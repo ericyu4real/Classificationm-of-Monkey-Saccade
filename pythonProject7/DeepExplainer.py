@@ -1,3 +1,5 @@
+import pickle
+
 import shap
 import torchvision
 import matplotlib.pyplot as plt
@@ -8,6 +10,7 @@ import numpy as np
 from keras.layers import Conv2D, MaxPooling2D, AveragePooling2D
 import scipy.io
 from sklearn.metrics import accuracy_score
+import pickle as pkl
 
 input_path_away = '/Users/jiangshanyu/Desktop/LFP_TW/NN-data/train_1545.mat'
 mat = scipy.io.loadmat(input_path_away)
@@ -59,38 +62,48 @@ e = shap.DeepExplainer(model, background)
 
 print(len(x_test_dict[0]), len(x_test_dict[1]))
 
-shap_towards = np.zeros((1,1,80,100,1))
-for cout in range(len(x_test_dict[0])):
+# Convert to list preserving order of classes
+x_test_each_class = [x_test_dict[i] for i in sorted(x_test_dict)]
+shap_towards = np.zeros((1, 80, 100, 1))
+for cout in range(50, 100):
     # Convert to list preserving order of classes
     x_test_each_class = [x_test_dict[0][cout]]
 
-    # Convert to tensor
     x_test_each_class = np.asarray(x_test_each_class)
+    shap_towards += e.shap_values(x_test_each_class)[0]
 
-    # Compute predictions
-    # predictions = np.rint(model.predict(x_test_each_class))
+print("down part1")
 
-    shap_towards += np.array(e.shap_values(x_test_each_class))
-
-shap_away = np.zeros((1,1,80,100,1))
-for cout in range(len(x_test_dict[1])):
+shap_away = np.zeros((1, 80, 100, 1))
+for cout in range(50, 100):
     # Convert to list preserving order of classes
     x_test_each_class = [x_test_dict[1][cout]]
 
     # Convert to tensor
     x_test_each_class = np.asarray(x_test_each_class)
 
-    # Compute predictions
-    # predictions = np.rint(model.predict(x_test_each_class))
 
-    shap_away += np.array(e.shap_values(x_test_each_class))
+    shap_away += e.shap_values(x_test_each_class)[0]
 
-shap_towards = shap_towards/474
-shap_away = shap_away/174
-shap_towards = shap_towards.tolist()
-shap_away = shap_away.tolist()
+shap_towards = shap_towards/50
+shap_away = shap_away/50
 
-shap_values = [[shap_towards[0][0], shap_away[0][0]]]
+
+shap_values = [np.concatenate((shap_towards, shap_away), axis=0)]
+#save shap values
+with open('shap50-100.pkl', 'wb') as f:
+    pickle.dump(shap_values, f)
+
+x_test_dict = dict()
+for i, l in enumerate(y_test):
+    if len(x_test_dict)==2:
+        break
+    if l[0] not in x_test_dict.keys():
+        x_test_dict[l[0]] = X_test[i]
+x_test_each_class = [x_test_dict[i] for i in sorted(x_test_dict)]
+x_test_each_class = np.asarray(x_test_each_class)
+
+
 # Plot shap values
-print(1)
 shap.image_plot(shap_values, -x_test_each_class)
+
